@@ -9,11 +9,17 @@ function writeAccess($header, $footer, $randomURL)
 {
 	$rule = "\nRedirect /$randomURL /wp-admin";
 	$htaccess = file_get_contents('./.htaccess');
+	$htaccess .= $header.$rule.$footer;
+	file_put_contents('./.htaccess', $htaccess);
+}
+
+function deleteAccess($header, $footer, $randomURL) {
+	$htaccess = file_get_contents('./.htaccess');
 	$htaccess = str_replace($header, '', $htaccess);
 	$htaccess = str_replace($footer, '', $htaccess);
 	$htaccess = preg_replace("/\nRedirect.*/", '', $htaccess);
-	$htaccess .= $header.$rule.$footer;
-	file_put_contents('./.htaccess', $htaccess);
+	file_put_contents('./.htaccess', $htaccess)
+
 }
 
 function sendTelegramMessage($chatID, $messaggio, $token) {
@@ -43,8 +49,9 @@ $token = "";
 $chatid = "";
 
 // To define for this script
-$host = "www.baxytra.eu";
-$yourSecret = "abc";
+$host = "";
+$yourSecret = "";
+$timeout = "60";
 	
 if (!checkSecret($_GET["s"], $yourSecret)) { 
 	echo "Wrong secret";
@@ -58,5 +65,9 @@ $footer = "\n#END TEMP-ADMIN";
 
 writeAccess($header, $footer, $randomURL);
 sendTelegramMessage($chatid, "Host : $host\nRandom URI access is : https://$host/$randomURL", $token);
-echo "URI generated, look at your messages";
+echo "The URL was sent, please check out your messages.";
+echo "Timeout : $timeout";
+sleep($timeout);
+deleteAccess($header, $footer, $randomURL);
+echo "This URL is now unavailable";
 ?>
